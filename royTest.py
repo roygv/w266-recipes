@@ -1,8 +1,11 @@
 import scrapy
-
+import sys
 import rescrape
-s = rescrape.site.AllRecipes("http://allrecipes.com/Recipe/Grilled-Salmon-I/Detail.aspx")
-s.write()
+import pandas as pd
+
+# print(dir(rescrape))
+# s = rescrape.site.AllRecipes("http://allrecipes.com/Recipe/Grilled-Salmon-I/Detail.aspx")
+# s.write()
 
 #import urllib2
 #from bs4 import BeautifulSoup
@@ -13,4 +16,4 @@ s.write()
 #print(soup.find("time",{"itemprop": "cookTime"}).attrs.get('datetime'))
 #print(soup.prettify())
 
-
+# pd.from_csv('recipeVectors/recipeVectors/allRecipes_recipes.json')
