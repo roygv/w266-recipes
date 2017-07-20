@@ -10,6 +10,7 @@ import sys
 import getopt
 import httplib
 import urlparse
+import os.path
 from rescrape.site import *
 
 
@@ -88,7 +89,7 @@ def save_recipe(url):
     else:
         raise ValueError("Unrecognized site: " + url)
 
-    scraper.write(to_file=True, path="~/tmp")
+    scraper.write(to_file=True, path=os.path.join(os.path.expanduser('~'), 'tmp'))
 
 if __name__ == "__main__":
     sys.exit(cmd_line_main())
