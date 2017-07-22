@@ -16,8 +16,28 @@ class AllrecipesSpider(scrapy.Spider):
     numCrawled = 0
 
     def start_requests(self):
-        start_urls = ['http://allrecipes.com/recipes/88/bbq-grilling/'
-            # ,'http://allrecipes.com/recipes/88/bbq-grilling/'
+        start_urls = ['http://allrecipes.com/recipes/76/appetizers-and-snacks/',
+                      'http://allrecipes.com/recipes/88/bbq-grilling/',
+                      'http://allrecipes.com/recipes/156/bread/',
+                      'http://allrecipes.com/recipes/78/breakfast-and-brunch/',
+                      'http://allrecipes.com/recipes/79/desserts/',
+                      'http://allrecipes.com/recipes/17562/dinner/',
+                      'http://allrecipes.com/recipes/77/drinks/',
+                      'http://allrecipes.com/recipes/1642/everyday-cooking/',
+                      'http://allrecipes.com/recipes/1116/fruits-and-vegetables/',
+                      'http://allrecipes.com/recipes/84/healthy-recipes/',
+                      'http://allrecipes.com/recipes/85/holidays-and-events/',
+                      'http://allrecipes.com/recipes/17561/lunch/',
+                      'http://allrecipes.com/recipes/80/main-dish/',
+                      'http://allrecipes.com/recipes/92/meat-and-poultry/',
+                      'http://allrecipes.com/recipes/95/pasta-and-noodles/',
+                      'http://allrecipes.com/recipes/96/salad/',
+                      'http://allrecipes.com/recipes/93/seafood/',
+                      'http://allrecipes.com/recipes/81/side-dish/',
+                      'http://allrecipes.com/recipes/94/soups-stews-and-chili/',
+                      'http://allrecipes.com/recipes/82/trusted-brands-recipes-and-tips/',
+                      'http://allrecipes.com/recipes/236/us-recipes/',
+                      'http://allrecipes.com/recipes/86/world-cuisine/',
         ]
         # 'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
 
