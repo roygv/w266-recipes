@@ -46,12 +46,12 @@ class AllrecipesSpider(scrapy.Spider):
         ]
         # 'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
         
-        next_page_indices = [ 1 for url in start_urls ]
+        self.next_page_indices = [ 1 for url in start_urls ]
 
         for idx, url in enumerate(start_urls):
-            yield scrapy.Request(url=url, callback=self.parse, meta={'category': next_page_indices[idx]})
+            yield scrapy.Request(url=url, callback=self.parse, meta={'category_idx': idx})
             
-    def create_ajax_request(self, category_url, page_number):
+    def create_ajax_request(self, category_url, category_idx, page_number):
         # https://stackoverflow.com/a/23721458/2491761
         """
         Helper function to create ajax request for next page.
@@ -62,15 +62,16 @@ class AllrecipesSpider(scrapy.Spider):
         ajax_template = '{url}?page={pagenum}'
         url = ajax_template.format(url=category_url_without_query, pagenum=page_number)
         # advance to next page in the category
-        return scrapy.Request(url, callback=self.parse)
+        return scrapy.Request(url, callback=self.parse, meta={'category_idx': category_idx})
 
     def parse(self, response):
         """
         Parse a category page, then increment pagenum to advance to next page in that category
         """
         
-        if 'The page you’re trying to find has moved or doesn’t exist. Please try again' in response.body:
-            #self.log("About to close spider", log.WARNING)
+        category_idx = response.meta.get('category_idx')
+        
+        if 'Please try again' in response.body:
             print('Reached end of category page')
             self.next_page = 1 # will start a new category, so reset page index to 1
             #raise CloseSpider(reason="no more pages to parse")
@@ -79,18 +80,26 @@ class AllrecipesSpider(scrapy.Spider):
             print('Starting URL Extraction')
             responseHTML = response.body
             sel = Selector(text=responseHTML, type="html")
-            for url in sel.xpath('//*[@id="grid"]/div/article/a[@class="ng-isolate-scope"]/img/../@href').extract():
+            found_recipe_links = False
+            for url in sel.xpath('body/div[@class="slider-container"]/div[@class="site-content"]/div[@class="container-content body-content"]/section/div/section[@id="grid"]/article/a/img/../@href').extract():
                 if url.find('/recipe/') == 0 and not url in self.crawledRecipesUrls:
                     self.crawledRecipesUrls.append(url)
                     recipe_url = urlparse.urljoin(response.url, url)
-                    yield scrapy.Request(recipe_url, callback=parse_item)
+                    print('Found recipe URL ', recipe_url)
+                    found_recipe_links = True
+                    yield scrapy.Request(recipe_url, callback=self.parse_item)
+            if not found_recipe_links:
+                print('***** WARNING: Could not extract recipe links from ', response.url)
 
             # generate request for next page within the category
-            self.next_page += 1
-            yield self.create_ajax_request(response.url, self.next_page)
+            self.next_page_indices[category_idx] += 1
+            yield self.create_ajax_request(response.url, category_idx, self.next_page_indices[category_idx])
 
         
     def parse_item(self, response):
+        """
+        Parse an individual recipe
+        """
         l = ItemLoader(item=RecipevectorsItem(), response=response)
         nameXpath = '//h1[re:test(@itemprop, "name")]//text()'
         totalTimeXPath = '//time[re:test(@itemprop, "totalTime")]//@datetime'
