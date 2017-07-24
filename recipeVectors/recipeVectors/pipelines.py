@@ -29,7 +29,7 @@ class RecipevectorsPipeline(object):
             f.close()
 
     def process_item(self, item, spider):
-        if item and item['cookingTime']:
+        if item and item['ingredients']:
             # self.exporter.export_item(item)
             self.items.append(dict(item))
         pass
