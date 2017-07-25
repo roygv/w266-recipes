@@ -23,7 +23,6 @@ class RecipevectorsPipeline(object):
         return pipeline
 
     def spider_closed(self, spider):
-        print('ughhh',self.items)
         with open('%s_recipes.json' % spider.name, 'w') as f:
             json.dump(self.items, f)
             f.close()
