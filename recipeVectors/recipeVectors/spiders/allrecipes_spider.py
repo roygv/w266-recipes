@@ -21,13 +21,16 @@ class AllrecipesSpider(scrapy.Spider):
     next_page = 1
 
     def start_requests(self):
-        start_urls = ['http://allrecipes.com/recipes/76/appetizers-and-snacks/',
+        start_urls = [
+                      # Tony
+                       'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
                       #'http://allrecipes.com/recipes/88/bbq-grilling/',
                       #'http://allrecipes.com/recipes/156/bread/',
                       #'http://allrecipes.com/recipes/78/breakfast-and-brunch/',
                       #'http://allrecipes.com/recipes/79/desserts/',
                       #'http://allrecipes.com/recipes/17562/dinner/',
                       #'http://allrecipes.com/recipes/77/drinks/',
+                      # Roy
                       #'http://allrecipes.com/recipes/1642/everyday-cooking/',
                       #'http://allrecipes.com/recipes/1116/fruits-and-vegetables/',
                       #'http://allrecipes.com/recipes/84/healthy-recipes/',
@@ -36,7 +39,8 @@ class AllrecipesSpider(scrapy.Spider):
                       #'http://allrecipes.com/recipes/80/main-dish/',
                       #'http://allrecipes.com/recipes/92/meat-and-poultry/',
                       #'http://allrecipes.com/recipes/95/pasta-and-noodles/',
-                      'http://allrecipes.com/recipes/96/salad/',
+                      # Chu
+                      #'http://allrecipes.com/recipes/96/salad/',
                       #'http://allrecipes.com/recipes/93/seafood/',
                       #'http://allrecipes.com/recipes/81/side-dish/',
                       #'http://allrecipes.com/recipes/94/soups-stews-and-chili/',
