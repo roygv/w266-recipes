@@ -18,8 +18,13 @@ sel = Selector(text=s, type="html")
 name=sel.xpath('//h1[re:test(@itemprop, "name")]//text()').extract()[0]
 totalTime=sel.xpath('//time[re:test(@itemprop, "totalTime")]//@datetime').extract()[0]
 aggregateRating= sel.xpath('//span[re:test(@itemprop,"aggregateRating")]')
+description= sel.xpath('//meta[re:test(@itemprop,"description")]//@content').extract()[0]
+
+
 stars = aggregateRating.xpath('.//meta[re:test(@itemprop, "ratingValue")]//@content').extract()[0]
 ratingcounts=aggregateRating.xpath('.//meta[re:test(@itemprop, "reviewCount")]//@content').extract()[0]
+print 'description', description
+
 print(name)
 print(stars)
 print(ratingcounts)
@@ -29,6 +34,12 @@ ingred = []
 for idx,item in enumerate(sel.xpath('//span[re:test(@class, "recipe-ingred_txt ")]//text()').extract()):
     print(idx,item)
     ingred.append(item)
+print('='*100)
+
+categories = []
+for idx,item in enumerate(sel.xpath('//img[re:test(@data-container, "relatedCategories")]//@title').extract()):
+    print(idx,item)
+    categories.append(item)
 print('='*100)
 
 instructions = []

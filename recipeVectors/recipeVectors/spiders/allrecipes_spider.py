@@ -17,7 +17,7 @@ class AllrecipesSpider(scrapy.Spider):
     crawledRecipesUrls = []
     savedRecipes = []
     numCrawled = 0
-    
+
     next_page = 1
 
     def start_requests(self):
@@ -36,7 +36,7 @@ class AllrecipesSpider(scrapy.Spider):
                       #'http://allrecipes.com/recipes/80/main-dish/',
                       #'http://allrecipes.com/recipes/92/meat-and-poultry/',
                       #'http://allrecipes.com/recipes/95/pasta-and-noodles/',
-                      'http://allrecipes.com/recipes/96/salad/',
+                    #   'http://allrecipes.com/recipes/96/salad/',
                       #'http://allrecipes.com/recipes/93/seafood/',
                       #'http://allrecipes.com/recipes/81/side-dish/',
                       #'http://allrecipes.com/recipes/94/soups-stews-and-chili/',
@@ -45,18 +45,18 @@ class AllrecipesSpider(scrapy.Spider):
                       #'http://allrecipes.com/recipes/86/world-cuisine/',
         ]
         # 'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
-        
+
         self.next_page_indices = [ 1 for url in start_urls ]
 
         for idx, url in enumerate(start_urls):
             yield scrapy.Request(url=url, callback=self.parse, meta={'category_idx': idx})
-            
+
     def create_ajax_request(self, category_url, category_idx, page_number):
         # https://stackoverflow.com/a/23721458/2491761
         """
         Helper function to create ajax request for next page.
         """
-        
+
         u = urlparse.urlsplit(category_url)
         category_url_without_query = u.scheme + "://" + u.netloc + u.path
         ajax_template = '{url}?page={pagenum}'
@@ -68,9 +68,9 @@ class AllrecipesSpider(scrapy.Spider):
         """
         Parse a category page, then increment pagenum to advance to next page in that category
         """
-        
+
         category_idx = response.meta.get('category_idx')
-        
+
         if 'Please try again' in response.body:
             print('Reached end of category page')
             self.next_page = 1 # will start a new category, so reset page index to 1
@@ -95,7 +95,7 @@ class AllrecipesSpider(scrapy.Spider):
             self.next_page_indices[category_idx] += 1
             yield self.create_ajax_request(response.url, category_idx, self.next_page_indices[category_idx])
 
-        
+
     def parse_item(self, response):
         """
         Parse an individual recipe
@@ -103,19 +103,22 @@ class AllrecipesSpider(scrapy.Spider):
         l = ItemLoader(item=RecipevectorsItem(), response=response)
         nameXpath = '//h1[re:test(@itemprop, "name")]//text()'
         totalTimeXPath = '//time[re:test(@itemprop, "totalTime")]//@datetime'
+        descriptionXPath = '//meta[re:test(@itemprop,"description")]//@content'
         ratingXpath = '//span[re:test(@itemprop,"aggregateRating")]//meta[re:test(@itemprop, "ratingValue")]//@content'
         ratingCountXpath = '//span[re:test(@itemprop,"aggregateRating")]//meta[re:test(@itemprop, "reviewCount")]//@content'
         ingredXpath = '//span[re:test(@class, "recipe-ingred_txt ")]//text()'
         instructionXpath = '//span[re:test(@class, "directions__list--item")]//text()'
+        categoriesXPath = '//img[re:test(@data-container, "relatedCategories")]//@title'
 
         l.add_value('url', response.url)
         l.add_xpath('name', nameXpath)
         l.add_xpath('rating', ratingXpath)
+        l.add_xpath('description', descriptionXPath)
         l.add_xpath('cookingTime', totalTimeXPath)
         l.add_xpath('ratingCount', ratingCountXpath)
         l.add_xpath('ingredients', ingredXpath)
         l.add_xpath('instructionSteps', instructionXpath)
+        l.add_xpath('categories', categoriesXPath)
         item = l.load_item()
         #print(item) # TODO: comment this out eventually
         yield item
-        
