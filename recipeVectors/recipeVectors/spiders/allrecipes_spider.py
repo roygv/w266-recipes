@@ -24,12 +24,12 @@ class AllrecipesSpider(scrapy.Spider):
         start_urls = [
                       # Tony
                        'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
-                      #'http://allrecipes.com/recipes/88/bbq-grilling/',
-                      #'http://allrecipes.com/recipes/156/bread/',
-                      #'http://allrecipes.com/recipes/78/breakfast-and-brunch/',
-                      #'http://allrecipes.com/recipes/79/desserts/',
-                      #'http://allrecipes.com/recipes/17562/dinner/',
-                      #'http://allrecipes.com/recipes/77/drinks/',
+                      'http://allrecipes.com/recipes/88/bbq-grilling/',
+                      'http://allrecipes.com/recipes/156/bread/',
+                      'http://allrecipes.com/recipes/78/breakfast-and-brunch/',
+                      'http://allrecipes.com/recipes/79/desserts/',
+                      'http://allrecipes.com/recipes/17562/dinner/',
+                      'http://allrecipes.com/recipes/77/drinks/',
                       # Roy
                       #'http://allrecipes.com/recipes/1642/everyday-cooking/',
                       #'http://allrecipes.com/recipes/1116/fruits-and-vegetables/',
