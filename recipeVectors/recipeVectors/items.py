@@ -21,3 +21,5 @@ class RecipevectorsItem(scrapy.Item):
     ingredients = scrapy.Field()
     instructionSteps = scrapy.Field()
     categories = scrapy.Field()
+    ethnicCategory = scrapy.Field(output_processor=TakeFirst())
+    fullCategoryTree = scrapy.Field(output_processor=TakeFirst())

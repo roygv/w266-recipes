@@ -22,8 +22,61 @@ class AllrecipesSpider(scrapy.Spider):
 
     def start_requests(self):
         start_urls = [
-                      # Tony
-                       'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
+            # Tony
+            'http://allrecipes.com/recipes/15039/world-cuisine/african/north-african/egyptian/',
+            'http://allrecipes.com/recipes/1827/world-cuisine/african/north-african/moroccan',
+            'http://allrecipes.com/recipes/17845/world-cuisine/african/east-african/',
+            'http://allrecipes.com/recipes/15035/world-cuisine/african/south-african/',
+            'http://allrecipes.com/recipes/233/world-cuisine/asian/indian/',
+            'http://allrecipes.com/recipes/695/world-cuisine/asian/chinese/',
+            'http://allrecipes.com/recipes/702/world-cuisine/asian/thai/',
+            'http://allrecipes.com/recipes/699/world-cuisine/asian/japanese/',
+            'http://allrecipes.com/recipes/696/world-cuisine/asian/filipino/',
+            'http://allrecipes.com/recipes/700/world-cuisine/asian/korean/',
+            'http://allrecipes.com/recipes/16100/world-cuisine/asian/bangladeshi/',
+            'http://allrecipes.com/recipes/15974/world-cuisine/asian/pakistani/',
+            'http://allrecipes.com/recipes/698/world-cuisine/asian/indonesian/',
+            'http://allrecipes.com/recipes/701/world-cuisine/asian/malaysian/',
+            'http://allrecipes.com/recipes/703/world-cuisine/asian/vietnamese/',
+            'http://allrecipes.com/recipes/15937/world-cuisine/middle-eastern/persian/',
+            'http://allrecipes.com/recipes/1824/world-cuisine/middle-eastern/lebanese/',
+            'http://allrecipes.com/recipes/1825/world-cuisine/middle-eastern/turkish/',
+            'http://allrecipes.com/recipes/1826/world-cuisine/middle-eastern/israeli/',
+            'http://allrecipes.com/recipes/228/world-cuisine/australian-and-new-zealander/',
+            'http://allrecipes.com/recipes/236/us-recipes/',
+            'http://allrecipes.com/recipes/733/world-cuisine/canadian/',
+            'http://allrecipes.com/recipes/728/world-cuisine/latin-american/mexican/',
+            'http://allrecipes.com/recipes/709/world-cuisine/latin-american/caribbean/cuban/',
+            'http://allrecipes.com/recipes/710/world-cuisine/latin-american/caribbean/jamaican/',
+            'http://allrecipes.com/recipes/711/world-cuisine/latin-american/caribbean/puerto-rican/',
+            'http://allrecipes.com/recipes/2432/world-cuisine/latin-american/south-american/argentinian/',
+            'http://allrecipes.com/recipes/1278/world-cuisine/latin-american/south-american/brazilian/',
+            'http://allrecipes.com/recipes/1277/world-cuisine/latin-american/south-american/chilean/',
+            'http://allrecipes.com/recipes/14759/world-cuisine/latin-american/south-american/colombian/',
+            'http://allrecipes.com/recipes/2433/world-cuisine/latin-american/south-american/peruvian/',
+            'http://allrecipes.com/recipes/718/world-cuisine/european/austrian/',
+            'http://allrecipes.com/recipes/719/world-cuisine/european/belgian/',
+            'http://allrecipes.com/recipes/720/world-cuisine/european/dutch/',
+            'http://allrecipes.com/recipes/721/world-cuisine/european/french/',
+            'http://allrecipes.com/recipes/722/world-cuisine/european/german/',
+            'http://allrecipes.com/recipes/731/world-cuisine/european/greek/',
+            'http://allrecipes.com/recipes/723/world-cuisine/european/italian/',
+            'http://allrecipes.com/recipes/724/world-cuisine/european/portuguese/',
+            'http://allrecipes.com/recipes/726/world-cuisine/european/spanish/',
+            'http://allrecipes.com/recipes/727/world-cuisine/european/swiss/',
+            'http://allrecipes.com/recipes/705/world-cuisine/european/uk-and-ireland/english/',
+            'http://allrecipes.com/recipes/706/world-cuisine/european/uk-and-ireland/irish/',
+            'http://allrecipes.com/recipes/707/world-cuisine/european/uk-and-ireland/scottish/',
+            'http://allrecipes.com/recipes/708/world-cuisine/european/uk-and-ireland/welsh/',
+            'http://allrecipes.com/recipes/1892/world-cuisine/european/scandinavian/danish/',
+            'http://allrecipes.com/recipes/1893/world-cuisine/european/scandinavian/finnish/',
+            'http://allrecipes.com/recipes/1891/world-cuisine/european/scandinavian/norwegian/',
+            'http://allrecipes.com/recipes/1890/world-cuisine/european/scandinavian/swedish/',
+            'http://allrecipes.com/recipes/713/world-cuisine/european/eastern-european/czech/',
+            'http://allrecipes.com/recipes/714/world-cuisine/european/eastern-european/hungarian/',
+            'http://allrecipes.com/recipes/715/world-cuisine/european/eastern-european/polish/',
+            'http://allrecipes.com/recipes/716/world-cuisine/european/eastern-european/russian/',
+                      # 'http://allrecipes.com/recipes/76/appetizers-and-snacks/',
                       #'http://allrecipes.com/recipes/88/bbq-grilling/',
                       #'http://allrecipes.com/recipes/156/bread/',
                       #'http://allrecipes.com/recipes/78/breakfast-and-brunch/',
@@ -52,9 +105,14 @@ class AllrecipesSpider(scrapy.Spider):
         self.next_page_indices = [ 1 for url in start_urls ]
 
         for idx, url in enumerate(start_urls):
-            yield scrapy.Request(url=url, callback=self.parse, meta={'category_idx': idx})
+            u = urlparse.urlsplit(url)
+            ethnic_category = u.path.strip('/').split('/')[-1]
+            # example: 'english'
+            full_category_tree = '/'.join([part for part in u.path.strip('/').split('/') if part != 'recipes' and part != 'world-cuisine' and not part.isdigit()])
+            # example: 'european/uk-and-ireland/english'
+            yield scrapy.Request(url=url, callback=self.parse, meta={'category_idx': idx, 'ethnic_category': ethnic_category, 'full_category_tree': full_category_tree})
 
-    def create_ajax_request(self, category_url, category_idx, page_number):
+    def create_ajax_request(self, category_url, category_idx, page_number, ethnic_category, full_category_tree):
         # https://stackoverflow.com/a/23721458/2491761
         """
         Helper function to create ajax request for next page.
@@ -65,7 +123,7 @@ class AllrecipesSpider(scrapy.Spider):
         ajax_template = '{url}?page={pagenum}'
         url = ajax_template.format(url=category_url_without_query, pagenum=page_number)
         # advance to next page in the category
-        return scrapy.Request(url, callback=self.parse, meta={'category_idx': category_idx})
+        return scrapy.Request(url, callback=self.parse, meta={'category_idx': category_idx, 'ethnic_category': ethnic_category, 'full_category_tree': full_category_tree})
 
     def parse(self, response):
         """
@@ -73,13 +131,15 @@ class AllrecipesSpider(scrapy.Spider):
         """
 
         category_idx = response.meta.get('category_idx')
+        ethnic_category = response.meta.get('ethnic_category')
+        full_category_tree = response.meta.get('full_category_tree')
 
         if 'Please try again' in response.body:
             print('Reached end of category page')
             self.next_page = 1 # will start a new category, so reset page index to 1
             #raise CloseSpider(reason="no more pages to parse")
         else:
-            print('='*30,'Extracting From Category ',response.url,'='*30)
+            print('='*15,'Extracting From Category ',response.url, ' Ethnic Category ', ethnic_category, ' Full Cat ', full_category_tree, '='*15)
             print('Starting URL Extraction')
             responseHTML = response.body
             sel = Selector(text=responseHTML, type="html")
@@ -90,19 +150,22 @@ class AllrecipesSpider(scrapy.Spider):
                     recipe_url = urlparse.urljoin(response.url, url)
                     print('Found recipe URL ', recipe_url)
                     found_recipe_links = True
-                    yield scrapy.Request(recipe_url, callback=self.parse_item)
+                    yield scrapy.Request(recipe_url, callback=self.parse_item, meta={'ethnic_category': ethnic_category, 'full_category_tree': full_category_tree})
             if not found_recipe_links:
                 print('***** WARNING: Could not extract recipe links from ', response.url)
 
             # generate request for next page within the category
             self.next_page_indices[category_idx] += 1
-            yield self.create_ajax_request(response.url, category_idx, self.next_page_indices[category_idx])
+            yield self.create_ajax_request(response.url, category_idx, self.next_page_indices[category_idx], ethnic_category, full_category_tree)
 
 
     def parse_item(self, response):
         """
         Parse an individual recipe
         """
+        ethnic_category = response.meta.get('ethnic_category')
+        full_category_tree = response.meta.get('full_category_tree')
+
         l = ItemLoader(item=RecipevectorsItem(), response=response)
         nameXpath = '//h1[re:test(@itemprop, "name")]//text()'
         totalTimeXPath = '//time[re:test(@itemprop, "totalTime")]//@datetime'
@@ -122,6 +185,8 @@ class AllrecipesSpider(scrapy.Spider):
         l.add_xpath('ingredients', ingredXpath)
         l.add_xpath('instructionSteps', instructionXpath)
         l.add_xpath('categories', categoriesXPath)
+        l.add_value('ethnicCategory', ethnic_category)
+        l.add_value('fullCategoryTree', full_category_tree)
         item = l.load_item()
         #print(item) # TODO: comment this out eventually
         yield item
