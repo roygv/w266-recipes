@@ -169,6 +169,7 @@ class Ingredients:
             with open('parsedIngredients.pkl', 'wb') as f:
                 pickle.dump(IngredientsDict, f) 
             print "Done"
+        del self.IngredientsDict
         
     
 class Instructions:
@@ -198,6 +199,7 @@ class Instructions:
             with open('parsedInstructions.pkl', 'wb') as f:
                 pickle.dump(InstructionsDict, f) 
             print "Done"
+        del self.InstructionsDict
         
 def get_ingredients(parsedInstructions, Ingredients, ingredientsDict, debug=0):
     """Create a more generic list of ingredients using the way they are referenced in the instructions."""
@@ -242,8 +244,8 @@ def get_ingredients(parsedInstructions, Ingredients, ingredientsDict, debug=0):
         elif (content==[] # first
              and tag == 'NOUN' # parser thinks it is a NOUN but can also be a verb
              and len(tokens) > idx+1
-             and en.is_verb(token.text.content.lower()) and pos_tag[tokens[idx+1].part_of_speech.tag] == 'NOUN'):
-            if (pos_tag[tokens[idx-1].part_of_speech.tag] == 'PUNCT') and token.text.content not in ingredientsDict:
+             and en.is_verb(token.text.content.lower()) and pos_tag[tokens[idx+1].part_of_speech.tag] in ['ADV','NOUN']):
+            if (pos_tag[tokens[idx-1].part_of_speech.tag] == 'PUNCT') and token.text.content+' '+tokens[idx+1].text.content not in ingredientsDict:
                 tag = 'VERB'
         else:
             tag = pos_tag[token.part_of_speech.tag]
