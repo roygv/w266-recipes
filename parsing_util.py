@@ -178,14 +178,14 @@ class Instructions:
         self.changed = False
     def exists(self, url):
         return url in self.InstructionsDict
-    def parse(self, url, ingredients):
+    def parse(self, url, instructions):
         if url not in self.InstructionsDict:
-                ingredients = '.'.join(ingredient for ingredient in ingredients)
-                if isinstance(ingredients, six.binary_type):
-                    ingredients = ingredients.decode('utf-8')
+                instructions = '.'.join(instruction for instruction in instructions)
+                if isinstance(instructions, six.binary_type):
+                    instructions = instructions.decode('utf-8')
                 # Instantiates a plain text document.
                 document = types.Document(
-                     content=ingredients,
+                     content=instructions,
                      type=enums.Document.Type.PLAIN_TEXT)
                 tokens = client.annotate_text(document, {'extract_syntax': True,}).tokens
                 tokensList=list(tokens)
