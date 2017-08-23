@@ -17,6 +17,7 @@ import en # NodeBox https://www.nodebox.net/code/index.php/Linguistics#verb_conj
 from google.cloud import language
 from google.cloud.language import enums
 from google.cloud.language import types
+from google.auth import compute_engine
 
 common_misspellings={'chily':'chili', 'lemongras':'lemon grass', 'gras':'grass', 'egg plant':'eggplant'}
 measuring_units = [
@@ -145,6 +146,7 @@ measuring_units = [
 class Ingredients:
     def __init__(self):
         self.IngredientsDict=pd.read_pickle('parsedIngredients.pkl')    
+        self.client = language.LanguageServiceClient(credentials = compute_engine.Credentials())
         self.changed = False
     def exists(self, url):
         return url in self.IngredientsDict
@@ -157,7 +159,7 @@ class Ingredients:
                 document = types.Document(
                      content=ingredients,
                      type=enums.Document.Type.PLAIN_TEXT)
-                tokens = client.annotate_text(document, {'extract_syntax': True,}).tokens
+                tokens = self.client.annotate_text(document, {'extract_syntax': True,}).tokens
                 tokensList=list(tokens)
                 self.IngredientsDict[url]=zlib.compress(cPickle.dumps(tokensList))
                 self.changed = True
@@ -167,14 +169,15 @@ class Ingredients:
         if (self.changed == True):
             print "Writing Ingredients to disk..."
             with open('parsedIngredients.pkl', 'wb') as f:
-                pickle.dump(IngredientsDict, f) 
+                pickle.dump(self.IngredientsDict, f) 
             print "Done"
         del self.IngredientsDict
         
     
 class Instructions:
     def __init__(self):
-        self.InstructionsDict=pd.read_pickle('parsedInstructions.pkl')    
+        self.InstructionsDict=pd.read_pickle('parsedInstructions.pkl')
+        self.client = language.LanguageServiceClient(credentials = compute_engine.Credentials())
         self.changed = False
     def exists(self, url):
         return url in self.InstructionsDict
@@ -187,17 +190,18 @@ class Instructions:
                 document = types.Document(
                      content=ingredients,
                      type=enums.Document.Type.PLAIN_TEXT)
-                tokens = client.annotate_text(document, {'extract_syntax': True,}).tokens
+                time.sleep(.1) # avoid Google API quota
+                tokens = self.client.annotate_text(document, {'extract_syntax': True,}).tokens
                 tokensList=list(tokens)
                 self.InstructionsDict[url]=zlib.compress(cPickle.dumps(tokensList))
                 self.changed = True
-                return tokenList
+                return tokensList
         return cPickle.loads(zlib.decompress(self.InstructionsDict[url]))
     def close(self):
         if (self.changed == True):
             print "Writing Instructions to disk..."
             with open('parsedInstructions.pkl', 'wb') as f:
-                pickle.dump(InstructionsDict, f) 
+                pickle.dump(self.InstructionsDict, f) 
             print "Done"
         del self.InstructionsDict
         
